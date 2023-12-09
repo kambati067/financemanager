@@ -1,5 +1,6 @@
 Steps to run and build Finance Manager in CLI
 - git clone https://github.com/kambati067/financemanager.git
+- cd financemanager
 - Have 2 CLI's open to run both frontend and backend
 - Back-end CLI
   - cd flask-backend
