@@ -35,94 +35,47 @@ import {
     PlaidLinkOptions,
     PlaidLinkOnSuccess,
   } from 'react-plaid-link';
+interface Budgets {
+    food: number;
+    shopping: number;
+    recreation: number;
+    utilities: number;
+    other: number;
+    travel: number;
+  }
 interface IPROPS{
     uid: string
 }
-let PlaidLink: React.FC<IPROPS> = ({uid}) => {
-    const [token,setToken]=useState("")
-    const [accounts, setAccounts] = useState([])
-    const [newAcc, setnewAcc] = useState(0)
-    const [newTrans,setnewTrans] = useState(0)
-    const [itemId,setItemId] = useState("")
-    const [accessToken,setAccessToken] = useState("")
+let Budget: React.FC<IPROPS>= ({uid}) => {
     const [opens, setOpen] = React.useState(false);
     const toggleDrawer = () => {
         setOpen(!opens);
     };
-    useEffect(() => {
-        const createLinkToken = async () => {
-            const response = await fetch('/create_link_token', {
-            method: 'POST',
-            headers:{
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({id:uid})
-            });
-            const responseJSON = await response.json();
-            console.log(responseJSON["link_token"])
-            setToken(responseJSON["link_token"]);
-        };
-        createLinkToken();
-    }, []);
-    useEffect(() =>{
-        fetch('/get_accounts', {
-            method: 'POST',
-            headers:{
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({id:uid})
-         })
-         .then((res) => res.json())
-         .then((data) => {
-            console.log(data)
-            setAccounts(data)
-         })
-    }, [newAcc])
-    /*useEffect(() =>{
-        if(newTrans!==0)
-        {
-            fetch('/transaction_sync', {
-                method: 'POST',
-                headers:{
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({id:uid, item_id:itemId, access_token: accessToken})
-             })
-        }
-        if(newTrans!==0)
-        {
-            fetch('/transaction_sync', {
-                method: 'POST',
-                headers:{
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({id:uid, item_id:itemId, access_token: accessToken})
-             })
-        }
-    },[newTrans])*/
+    const [budgets, setBudgets] = useState<Budgets>({
+        food: 0,
+        shopping: 0,
+        recreation: 0,
+        travel:0,
+        utilities: 0,
+        other: 0,
+      });
     
-    const config: PlaidLinkOptions = {
-        onSuccess: (public_token, metadata) => {
-            console.log("hi")
-            fetch('/exchange_public_token',{
-                method: 'POST',
-                headers:{
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({id:uid, public_token:public_token, metadata: metadata})
-            })
-            .then((res) => res.json())
-            .then((data) =>{
-                setnewAcc(newAcc => newAcc+1)
-                setItemId(data['item_id'])
-                setAccessToken(data['access_token'])
-                setnewTrans(newTrans => newTrans+1)
-            })
-            
-        },
-        token,
-        };
-        const { open, exit, ready } = usePlaidLink(config);
+      const handleBudgetChange = (category: keyof Budgets, value: string) => {
+        setBudgets(prevBudgets => ({
+          ...prevBudgets,
+          [category]: parseFloat(value) || 0,
+        }));
+      };
+      const saveBudget = () => {
+        fetch('/set_budget',{
+            method: 'POST',
+            headers:{
+                'Content-Type': 'application/json',
+            },
+            body:JSON.stringify({id:uid, food: budgets.food, shopping: budgets.shopping, recreation: budgets.recreation, travel: budgets.travel, utilities:budgets.utilities, other:budgets.other})
+        })
+      }
+    
         const drawerWidth: number = 240;
 
         interface AppBarProps extends MuiAppBarProps {
@@ -202,7 +155,7 @@ let PlaidLink: React.FC<IPROPS> = ({uid}) => {
               noWrap
               sx={{ flexGrow: 1 }}
             >
-              Account Manager
+              Budgeting Manager
             </Typography>
             <IconButton color="inherit">
               <Badge badgeContent={4} color="secondary">
@@ -243,21 +196,82 @@ let PlaidLink: React.FC<IPROPS> = ({uid}) => {
           <Toolbar />
           <Container maxWidth="xl" sx={{ mt: 2, mb: 1 }}>
             <Grid container spacing={1}>
-            <Grid item xs={12}>
-                <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-                <Button variant="contained" onClick={() => open()}>Connect a bank account</Button>
-                </Paper>
-            </Grid>
-                 
-               
-              
-              
-    
               {/* Recent Deposits */}
               {/* Recent Orders */}
               <Grid item xs={12}>
                 <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-                    <Accounts accounts={accounts}/>
+                <div>
+      <h1>Budgeting Page</h1>
+      <div>
+        <label htmlFor="food">Food:</label>
+        <input
+          type="number"
+          id="food"
+          value={budgets.food}
+          onChange={(e) => handleBudgetChange('food', e.target.value)}
+        />
+      </div>
+      <div>
+        <label htmlFor="shopping">Shopping:</label>
+        <input
+          type="number"
+          id="shopping"
+          value={budgets.shopping}
+          onChange={(e) => handleBudgetChange('shopping', e.target.value)}
+        />
+      </div>
+      <div>
+        <label htmlFor="recreation">Recreation:</label>
+        <input
+          type="number"
+          id="recreation"
+          value={budgets.recreation}
+          onChange={(e) => handleBudgetChange('recreation', e.target.value)}
+        />
+      </div>
+      <div>
+        <label htmlFor="utilities">Utilities:</label>
+        <input
+          type="number"
+          id="utilities"
+          value={budgets.utilities}
+          onChange={(e) => handleBudgetChange('utilities', e.target.value)}
+        />
+      </div>
+      <div>
+        <label htmlFor="travel">Travel:</label>
+        <input
+          type="number"
+          id="travel"
+          value={budgets.travel}
+          onChange={(e) => handleBudgetChange('travel', e.target.value)}
+        />
+      </div>
+      <div>
+        <label htmlFor="other">Other:</label>
+        <input
+          type="number"
+          id="other"
+          value={budgets.other}
+          onChange={(e) => handleBudgetChange('other', e.target.value)}
+        />
+      </div>
+      <div>
+        <h2>Entered Budgets:</h2>
+        <ul>
+          {Object.entries(budgets).map(([category, value]) => (
+            <li key={category}>
+              {category}: {value}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+                </Paper>
+            </Grid>
+            <Grid item xs={12}>
+                <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
+                <Button variant="contained" onClick={() => saveBudget()}>Save Changes</Button>
                 </Paper>
             </Grid>
             </Grid>
@@ -270,4 +284,4 @@ let PlaidLink: React.FC<IPROPS> = ({uid}) => {
   )
 }
 
-export default PlaidLink
+export default Budget

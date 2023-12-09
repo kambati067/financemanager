@@ -29,7 +29,7 @@ const Signup = () => {
     <form>
         <h1>Create MiniMint Account!</h1>
         <h2>Email</h2>
-        <input type="text" name="email" placeholder='Enter Email' value={user.email} onChange={handleChange}></input>
+        <input type="text" name="email" placeholder='Enter Username' value={user.email} onChange={handleChange}></input>
         <h2>Password</h2>
         <input type="text" name="password" placeholder='Enter Password' value={user.password} onChange={handleChange}></input>
         <button type="submit" onClick={submitForm}>Create Account</button>

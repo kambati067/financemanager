@@ -4,6 +4,7 @@ import './App.css';
 import {Route,Routes} from 'react-router-dom'
 import Signin from './components/Signin';
 import Signup from './components/Signup';
+import Budget from './components/Budget';
 import Link from './components/Link';
 import DashboardContent from './components/DasboardMUI';
 import SignupComponent from './components/SignupComponent';
@@ -16,6 +17,7 @@ function App() {
         <Route path= "/signin" element={<Signin setUid={setUid}></Signin>}></Route>
         <Route path="/link" element={<Link uid={uid}></Link>}></Route>
         <Route path="/dashboard" element={<DashboardContent uid={uid}></DashboardContent>}></Route>
+        <Route path="/budget" element={<Budget uid={uid}></Budget>}></Route>
       </Routes>
     </>
   );

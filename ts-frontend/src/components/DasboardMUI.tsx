@@ -135,6 +135,8 @@ let DashboardContent: React.FC<IPROPS> = ({uid}) => {
                     ...moneyData,value
                 ])
             }
+            if (data["overBudget"])
+              alert("You have went over your set budget this month")
         })
         fetch('/transactions/get',{
             method: 'POST',
@@ -216,7 +218,7 @@ let DashboardContent: React.FC<IPROPS> = ({uid}) => {
               noWrap
               sx={{ flexGrow: 1 }}
             >
-              Dashboard
+              Finance Dashboard
             </Typography>
             <IconButton color="inherit">
               <Badge badgeContent={4} color="secondary">

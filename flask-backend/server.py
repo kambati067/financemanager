@@ -36,9 +36,9 @@ user_collection = db["user_data"]
 transaction_collection = db["transactions"]
 account_collection = db["accounts"]
 client_id = os.getenv('PLAID_CLIENT_ID')
-secret = os.getenv('PLAID_DEV_SECRET')
+secret = os.getenv('PLAID_SANDBOX_SECRET')
 configuration = plaid.Configuration(
-    host=plaid.Environment.Development,
+    host=plaid.Environment.Sandbox,
     api_key={
         'clientId': client_id,
         'secret': secret,
@@ -56,6 +56,12 @@ def login():
         "email": email,
         "password": password,
         "items":[],
+        "Food/Drinks": 0,
+        "Recreation": 0,
+        "Service/Utility": 0,
+        "Shopping": 0,
+        "Travel": 0,
+        "Other": 0,
     })
     return str(id)
 @api.route('/signin',methods=['POST'])
@@ -265,7 +271,12 @@ def legacy_get_transactions():
                 category_sum["Other"] = category_sum.get("Other",0)+amount
             trans_dict["my_category"]="Other"
         trans.append(trans_dict)
-    return {"transactions":trans,"categories": category_sum}
+    overBudget = False
+    if(items["Food/Drinks"]<category_sum["Food/Drinks"] or items["Recreation"]<category_sum["Recreation"] or items["Shopping"]<category_sum["Shopping"] or 
+    items["Service/Utility"]<category_sum["Service/Utility"] or items["Travel"]<category_sum["Travel"] or 
+    items["Other"]<category_sum["Other"]):
+        overBudget = True
+    return {"transactions":trans,"categories": category_sum,"overBudget": overBudget}
 @api.route('/get_categories',methods=['GET'])
 def get_categories():
     response = plaid_client.categories_get({})
@@ -276,6 +287,29 @@ def get_categories():
     #Food Drink (13), Healthcare (14), Payment(16), Recreation(17), Services(18), Personal Care Services(18045)
     #Shops(19), Tax(20), Transfer(21), Travel(22)
     return ans
+@api.route("/set_budget", methods=['POST'])
+def set_budget():
+    food = request.json['food']
+    shopping = request.json['shopping']
+    entertainment = request.json['recreation']
+    utilities = request.json['utilities']
+    other = request.json['other']
+    travel = request.json['travel']
+    uid = request.json['id']
+    user_collection.update_one({
+        "_id": ObjectId(uid)
+    },{
+        "$set":{
+            "Food/Drinks":food,
+            "Recreation": entertainment,
+            "Service/Utility": utilities,
+            "Shopping": shopping,
+            "Travel": travel,
+            "Other": other
+        }
+    })
+    return "success"
+
 
 if __name__ == '__main__':
     api.run(debug=True)
