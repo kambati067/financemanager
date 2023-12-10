@@ -10,3 +10,4 @@ Steps to run and build Finance Manager in CLI
   - cd ts-frontend
   - npm install
   - npm start
+- Link of Demo folloing above steps: https://drive.google.com/file/d/1tPZQ3njzcYaZnKWT_gkgbmb24T705jGm/view?usp=sharing
